@@ -23,4 +23,7 @@ export default class Urls {
   static LoginUser(){
     return `${data}/`
   }
+  static verifyToken(){
+    return `${auth}/verify`
+  }
 }

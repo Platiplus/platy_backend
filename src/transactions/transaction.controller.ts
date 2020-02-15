@@ -1,10 +1,10 @@
-import { Controller, Body, Headers, Post, Patch, Delete, UsePipes } from '@nestjs/common'
+import { Controller, Body, Headers, Post, Patch, Delete, UsePipes, UseGuards } from '@nestjs/common'
 import { TransactionsService } from './transaction.service'
 import { TransactionDTO } from './dto/transaction.dto'
 import { ValidationPipe } from '../shared/validation.pipe';
-import sanitize from '../utils/tokens'
 import {v4 as uuid} from 'uuid'
 import * as moment from 'moment'
+import { AuthGuard } from 'src/shared/auth-guard';
 
 @Controller('transactions')
 export class TransactionController {
@@ -12,9 +12,8 @@ export class TransactionController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  addTransaction(@Body() transaction: TransactionDTO, @Headers('Authorization') authorization: string): void {
-    const token = sanitize(authorization)
-
+  @UseGuards(new AuthGuard())
+  addTransaction(@Body() transaction: TransactionDTO, @Headers('authorization') token: string): void {
     if(transaction.quotas != 0){
       const uniqueIdentifier = uuid()
       
@@ -38,10 +37,9 @@ export class TransactionController {
   }
 
   @Patch()
+  @UseGuards(new AuthGuard())
   @UsePipes(new ValidationPipe())
-  updateTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('Authorization') authorization: string): void {
-    const token = sanitize(authorization)
-
+  updateTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('authorization') token: string): void {
     if(transaction.quotas != undefined && transaction.quotas != 'unique') {
       this.transactionsService.getCorrelatedTransactions(transaction.quotas, token)
       .then((transactions) => {
@@ -63,9 +61,8 @@ export class TransactionController {
 
   @Delete()
   @UsePipes(new ValidationPipe())
-  deleteTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('Authorization') authorization: string): void {
-    const token = sanitize(authorization)
-
+  @UseGuards(new AuthGuard())
+  deleteTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('authorization') token: string): void {
     if(transaction.quotas != undefined && transaction.quotas != 'unique') {
       this.transactionsService.getCorrelatedTransactions(transaction.quotas, token)
       .then((transactions) => {

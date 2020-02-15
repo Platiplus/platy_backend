@@ -1,49 +1,65 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { TransactionDTO } from './dto/transaction.dto'
 import Axios from 'axios'
 import URL  from '../utils/urls'
 
 @Injectable()
 export class TransactionsService {
-  insert(transaction: TransactionDTO, token: string){
-    Axios.post(URL.InsertTransaction(), transaction, { headers: { Authorization: `Bearer ${token}` } })
-    .then((result) => {
-      return result.data.createdTransaction;
-    })
-    .catch((error) => {
-      return error;
-    })
+  async insert(transaction: TransactionDTO, token: string){
+    try {
+      const response = await Axios.post(
+        URL.InsertTransaction(),
+        transaction, 
+        { headers: { authorization: token } }
+      );
+
+      return response.data.createdTransaction;
+
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR); 
+    } 
   }
 
-  getCorrelatedTransactions(correlationId: string, token: string){
-    return Axios.get(URL.GetTransactions(), {params: { quotas: correlationId }, headers: { Authorization: `Bearer ${token}` }})
-    .then((transactions) => {
-      return transactions.data.transactions;
-    })
-    .catch((error) => {
-      return error;
-    })
+  async getCorrelatedTransactions(correlationId: string, token: string){
+    try {
+      const response = await Axios.get(
+        URL.GetTransactions(),
+        {
+          params: { quotas: correlationId },
+          headers: { authorization: `Bearer ${token}` }
+        }
+      );
+
+      return response.data.transactions;
+      
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  update(transaction: Partial<TransactionDTO>, token: string){
-    delete transaction._id
+  async update(transaction: Partial<TransactionDTO>, token: string){
+    try {
+      const response = await Axios.patch(
+        URL.PatchTransactions(transaction._id),
+        transaction, 
+        { headers: { authorization: token }}
+        );
 
-    return Axios.patch(URL.PatchTransactions(transaction._id), transaction, { headers: { Authorization: `Bearer ${token}` } } )
-    .then((transactions) => {
-      return transactions.data.transactions;
-    })
-    .catch((error) => {
-      return error;
-    })
+      return response.data.transaction;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  delete(transaction: Partial<TransactionDTO>, token: string){
-    return Axios.delete(URL.DeleteTransactions(transaction._id), { headers: { Authorization: `Bearer ${token}` } })
-    .then((transactions) => {
-      return transactions.data.transactions;
-    })
-    .catch((error) => {
-      return error;
-    })
+  async delete(transaction: Partial<TransactionDTO>, token: string){
+    try {
+      const response = await Axios.delete(
+        URL.DeleteTransactions(transaction._id),
+        { headers: { authorization: token }}
+      );
+      return response.data.message;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }    
   }
 }
