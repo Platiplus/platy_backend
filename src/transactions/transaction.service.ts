@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { TransactionDTO } from './dto/transactions.dto'
+import { TransactionDTO } from './dto/transaction.dto'
 import Axios from 'axios'
-import Urls  from '../utils/urls'
-
-const URL = new Urls()
+import URL  from '../utils/urls'
 
 @Injectable()
 export class TransactionsService {

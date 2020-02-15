@@ -1,16 +1,26 @@
-const baseUrl = 'http://localhost:8080/'
+const data = process.env.DATA_API;
+const auth = process.env.AUTH_API;
 
 export default class Urls {
-  InsertTransaction(){
-    return `${baseUrl}/transactions/`
+  static InsertTransaction(){
+    return `${data}/transactions/`
   }
-  GetTransactions(){
-    return `${baseUrl}/transactions/`
+  static GetTransactions(){
+    return `${data}/transactions/`
   }
-  PatchTransactions(_id){
-    return `${baseUrl}/transactions/${_id}`
+  static PatchTransactions(_id){
+    return `${data}/transactions/${_id}`
   }
-  DeleteTransactions(_id){
-    return `${baseUrl}/transactions/${_id}`
+  static DeleteTransactions(_id){
+    return `${data}/transactions/${_id}`
+  }
+  static InsertUser(){
+    return `${data}/`
+  }
+  static UpdateUser(_id){
+    return `${data}/`
+  }
+  static LoginUser(){
+    return `${data}/`
   }
 }

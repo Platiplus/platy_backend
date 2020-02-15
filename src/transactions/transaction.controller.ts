@@ -1,13 +1,13 @@
 import { Controller, Body, Headers, Post, Patch, Delete, UsePipes } from '@nestjs/common'
-import { TransactionsService } from './transactions.service'
-import { TransactionDTO } from './dto/transactions.dto'
+import { TransactionsService } from './transaction.service'
+import { TransactionDTO } from './dto/transaction.dto'
 import { ValidationPipe } from '../shared/validation.pipe';
 import sanitize from '../utils/tokens'
 import {v4 as uuid} from 'uuid'
 import * as moment from 'moment'
 
 @Controller('transactions')
-export class TransactionsController {
+export class TransactionController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
