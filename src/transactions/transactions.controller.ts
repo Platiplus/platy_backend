@@ -1,21 +1,17 @@
-import { Controller, Body, Headers, Post, Patch, Delete } from '@nestjs/common'
+import { Controller, Body, Headers, Post, Patch, Delete, UsePipes } from '@nestjs/common'
 import { TransactionsService } from './transactions.service'
 import { TransactionDTO } from './dto/transactions.dto'
+import { ValidationPipe } from '../shared/validation.pipe';
 import sanitize from '../utils/tokens'
 import {v4 as uuid} from 'uuid'
 import * as moment from 'moment'
-
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Post('teste')
-  teste(@Body() transaction: TransactionDTO){
-    console.log(transaction)
-  }
-
   @Post()
+  @UsePipes(new ValidationPipe())
   addTransaction(@Body() transaction: TransactionDTO, @Headers('Authorization') authorization: string): void {
     const token = sanitize(authorization)
 
@@ -42,6 +38,7 @@ export class TransactionsController {
   }
 
   @Patch()
+  @UsePipes(new ValidationPipe())
   updateTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('Authorization') authorization: string): void {
     const token = sanitize(authorization)
 
@@ -65,6 +62,7 @@ export class TransactionsController {
   }
 
   @Delete()
+  @UsePipes(new ValidationPipe())
   deleteTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('Authorization') authorization: string): void {
     const token = sanitize(authorization)
 
