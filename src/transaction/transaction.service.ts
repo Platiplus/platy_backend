@@ -7,17 +7,34 @@ import URL  from '../utils/urls'
 export class TransactionsService {
   async insert(transaction: TransactionDTO, token: string){
     try {
-      const response = await Axios.post(
+      const response = Axios.post(
         URL.InsertTransaction(),
         transaction, 
         { headers: { authorization: token } }
       );
 
-      return response.data.createdTransaction;
+      return (await response).data.createdTransaction;
 
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR); 
     } 
+  }
+
+  async get(params: Partial<TransactionDTO>, token: string): Promise<TransactionDTO[]>{
+    try {
+      const response = await Axios.get(
+        URL.GetTransactions(),
+        {
+          params,
+          headers: { authorization: `Bearer ${token}` }
+        }
+      );
+
+      return (await response).data.transactions;
+      
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async getCorrelatedTransactions(correlationId: string, token: string){
@@ -30,7 +47,7 @@ export class TransactionsService {
         }
       );
 
-      return response.data.transactions;
+      return (await response).data.transactions;
       
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,13 +56,13 @@ export class TransactionsService {
 
   async update(transaction: Partial<TransactionDTO>, token: string){
     try {
-      const response = await Axios.patch(
+      const response = Axios.patch(
         URL.PatchTransactions(transaction._id),
         transaction, 
         { headers: { authorization: token }}
         );
 
-      return response.data.transaction;
+      return (await response).data.transaction;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -53,11 +70,11 @@ export class TransactionsService {
 
   async delete(transaction: Partial<TransactionDTO>, token: string){
     try {
-      const response = await Axios.delete(
+      const response = Axios.delete(
         URL.DeleteTransactions(transaction._id),
         { headers: { authorization: token }}
       );
-      return response.data.message;
+      return (await response).data.message;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }    

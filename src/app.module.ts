@@ -5,10 +5,11 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpErrorFilter } from './shared/http-error.filter';
 import { LoggingInterceptor } from './shared/logging.interceptor';
 import { UserModule } from './user/user.module';
-import { TransactionsModule } from './transactions/transaction.module';
+import { TransactionsModule } from './transaction/transaction.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
-  imports: [TransactionsModule, UserModule],
+  imports: [TransactionsModule, UserModule, AccountModule],
   controllers: [AppController],
   providers: [
     AppService, 

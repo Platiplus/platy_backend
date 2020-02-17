@@ -1,4 +1,4 @@
-import { Controller, Body, Headers, Post, Patch, Delete, UsePipes, UseGuards } from '@nestjs/common'
+import { Controller, Body, Headers, Post, Patch, Delete, UsePipes, UseGuards, Get } from '@nestjs/common'
 import { TransactionsService } from './transaction.service'
 import { TransactionDTO } from './dto/transaction.dto'
 import { ValidationPipe } from '../shared/validation.pipe';
@@ -6,9 +6,17 @@ import {v4 as uuid} from 'uuid'
 import * as moment from 'moment'
 import { AuthGuard } from 'src/shared/auth-guard';
 
-@Controller('transactions')
+@Controller('transaction')
 export class TransactionController {
   constructor(private readonly transactionsService: TransactionsService) {}
+
+  @Get()
+  @UsePipes(new ValidationPipe())
+  @UseGuards(new AuthGuard())
+  async getTransactions(@Body() transactionFilter: Partial<TransactionDTO>, @Headers('authorization') token: string): Promise<TransactionDTO[]> {
+    const transactions = await this.transactionsService.get(transactionFilter, token);
+    return transactions;
+  }
 
   @Post()
   @UsePipes(new ValidationPipe())
