@@ -8,25 +8,24 @@ export class UserService {
 
   async register(user: UserDTO, token: string): Promise<any> {
     try {
-      const response = await Axios.post(
+      const response = Axios.post(
         URL.InsertUser(),
         user, 
         { headers: { Authorization: token } }
       );
-      return response.data.createdUser;
+      return (await response).data.createdUser;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async login(user: Partial<UserDTO>, token: string): Promise<any> {
+  async login(user: Partial<UserDTO>): Promise<any> {
     try {
-      const response = await Axios.post(
+      const response = Axios.post(
         URL.LoginUser(),
-        user, 
-        { headers: { Authorization: token } }
+        user
       );
-      return response.data;
+      return (await response).data;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -34,12 +33,12 @@ export class UserService {
 
   async update(user: Partial<UserDTO>, token: string): Promise<any> {
     try {
-      const response = await Axios.post(
-        URL.UpdateUser(user._id),
-        user, 
+      const response = Axios.patch(
+        URL.UpdateUser(),
+        user,
         { headers: { Authorization: token } }
       );
-      return response.data.user;
+      return (await response).data.user;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
