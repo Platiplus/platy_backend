@@ -6,13 +6,16 @@ export default class Urls {
     return `${data}/transactions/`
   }
   static GetTransactions(): string{
-    return `${data}/transactions/`
+    return `${data}/transactions/all`
   }
   static PatchTransactions(_id: string): string{
     return `${data}/transactions/${_id}`
   }
   static DeleteTransactions(_id: string): string{
     return `${data}/transactions/${_id}`
+  }
+  static getUser(): string {
+    return `${data}/users/`
   }
   static InsertUser(): string{
     return `${data}/users/`
@@ -31,6 +34,9 @@ export default class Urls {
   }
   static getAccount(_id: string): string{
     return `${data}/accounts/${_id}`;
+  }
+  static insertAccount(): string{
+    return `${data}/accounts/`;
   }
   static updateAccount(_id: string): string{
     return `${data}/accounts/${_id}`;

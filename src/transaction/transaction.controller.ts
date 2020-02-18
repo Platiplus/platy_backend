@@ -1,4 +1,4 @@
-import { Controller, Body, Headers, Post, Patch, Delete, UsePipes, UseGuards, Get } from '@nestjs/common'
+import { Controller, Body, Headers, Post, Patch, Delete, UsePipes, UseGuards, Get, Param, Query } from '@nestjs/common'
 import { TransactionsService } from './transaction.service'
 import { TransactionDTO } from './dto/transaction.dto'
 import { ValidationPipe } from '../shared/validation.pipe';
@@ -11,18 +11,20 @@ export class TransactionController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Get()
-  @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
-  async getTransactions(@Body() transactionFilter: Partial<TransactionDTO>, @Headers('authorization') token: string): Promise<TransactionDTO[]> {
-    const transactions = await this.transactionsService.get(transactionFilter, token);
-    return transactions;
-  }
+  async getTransactions(
+    @Headers('authorization') token: string,
+    @Query() params: []): Promise<TransactionDTO[]>
+    {
+      const transactions = await this.transactionsService.get(params, token);
+      return transactions;
+    }
 
   @Post()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   addTransaction(@Body() transaction: TransactionDTO, @Headers('authorization') token: string): void {
-    if(transaction.quotas != 0){
+    if(transaction.quotas != 0 && transaction.quotas != 'unique'){
       const uniqueIdentifier = uuid()
       
       for(let i = 0; i < transaction.quotas; i++){
@@ -40,8 +42,9 @@ export class TransactionController {
         )
         this.transactionsService.insert(quota, token)
       }
+    } else {
+      this.transactionsService.insert(transaction, token)
     }
-    this.transactionsService.insert(transaction, token)
   }
 
   @Patch()
@@ -76,7 +79,7 @@ export class TransactionController {
       .then((transactions) => {
         const firstIdx = transactions.indexOf(transactions.find((x) => x._id == transaction._id));
         for (let i = firstIdx; i < transactions.length; i++){
-          this.transactionsService.delete(transaction, token)
+          this.transactionsService.delete(transactions[i], token)
         }
       });
     } else {

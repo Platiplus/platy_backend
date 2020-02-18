@@ -1,10 +1,10 @@
-import { IsString, IsBoolean, IsNumber, IsDateString } from 'class-validator';
+import { IsString, IsBoolean, IsNumber } from 'class-validator';
 
 export class TransactionDTO {
     @IsNumber()
     public type: number;
 
-    @IsDateString()
+    @IsString()
     public date: string;
 
     @IsString()
@@ -23,14 +23,13 @@ export class TransactionDTO {
     public status: boolean;
 
     @IsString()
-    public owner: string;
-
-    @IsString()
     public _id?: string;
+    
+    public owner?: string;
     
     public quotas: any;
 
-    constructor(type, date, description, target, value, category, status, quotas, owner, _id = null)
+    constructor(type, date, description, target, value, category, status, quotas, owner, _id = 'null')
     {
       this.type = type;
       this.date = date;

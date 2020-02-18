@@ -8,12 +8,12 @@ export class AccountDTO {
   public description: string;
 
   @IsString()
-  public owner: string;
+  public owner?: string;
 
   @IsNumber()
   public balance: number;
 
-  constructor(description, owner, balance = 0, _id = null){
+  constructor(description, owner = 'null', balance = 0, _id = 'null'){
     this.description = description;
     this.owner = owner;
     this.balance = balance;

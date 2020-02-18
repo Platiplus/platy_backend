@@ -8,11 +8,18 @@ import { AuthGuard } from 'src/shared/auth-guard';
 export class UserController {
   constructor(private userService: UserService){}
 
+  @Get()
+  @UsePipes(new ValidationPipe())
+  @UseGuards(new AuthGuard())
+  async getUserInfo(@Headers('authorization') token: string): Promise<Partial<UserDTO>>{
+    const userInfo = await this.userService.get(token);
+    return userInfo;
+  }
+
   @Post()
   @UsePipes(new ValidationPipe())
   async registerUser(@Body() user: UserDTO, @Headers('authorization') token: string): Promise<Partial<UserDTO>>{
     const createdUser = await this.userService.register(user, token);
-    delete createdUser.requests;
     return createdUser;
   }
 
@@ -28,7 +35,6 @@ export class UserController {
   @UseGuards(new AuthGuard())
   async updateUser(@Body() user: Partial<UserDTO>, @Headers('authorization') token: string): Promise<Partial<UserDTO>>{
     const updatedUser = await this.userService.update(user, token);
-    delete updatedUser.requests;
     return updatedUser;
   }
 }

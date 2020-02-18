@@ -6,31 +6,36 @@ import URL  from '../utils/urls'
 @Injectable()
 export class TransactionsService {
   async insert(transaction: TransactionDTO, token: string){
+    delete transaction._id;
+    delete transaction.owner;
+
     try {
       const response = Axios.post(
         URL.InsertTransaction(),
-        transaction, 
+        { ...transaction }, 
         { headers: { authorization: token } }
       );
-
       return (await response).data.createdTransaction;
 
     } catch (error) {
+      console.log(error)
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR); 
     } 
   }
 
-  async get(params: Partial<TransactionDTO>, token: string): Promise<TransactionDTO[]>{
+  async get(params: [], token: string){
     try {
       const response = await Axios.get(
         URL.GetTransactions(),
         {
           params,
-          headers: { authorization: `Bearer ${token}` }
+          headers: { authorization: token }
         }
       );
-
-      return (await response).data.transactions;
+      
+      response.data.transactions.forEach(transaction => delete transaction.requests);
+      
+      return response.data.transactions;
       
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -43,11 +48,12 @@ export class TransactionsService {
         URL.GetTransactions(),
         {
           params: { quotas: correlationId },
-          headers: { authorization: `Bearer ${token}` }
+          headers: { authorization: token }
         }
       );
 
-      return (await response).data.transactions;
+      response.data.transactions.forEach(transaction => delete transaction.requests);
+      return response.data.transactions;
       
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -56,13 +62,16 @@ export class TransactionsService {
 
   async update(transaction: Partial<TransactionDTO>, token: string){
     try {
-      const response = Axios.patch(
-        URL.PatchTransactions(transaction._id),
-        transaction, 
-        { headers: { authorization: token }}
-        );
+      const _id = transaction._id;
+      delete transaction._id;
 
-      return (await response).data.transaction;
+      const response = await Axios.patch(
+        URL.PatchTransactions(_id),
+        { ...transaction }, 
+        { headers: { authorization: token }}
+      );
+
+      return response.data.transaction;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -70,11 +79,14 @@ export class TransactionsService {
 
   async delete(transaction: Partial<TransactionDTO>, token: string){
     try {
-      const response = Axios.delete(
+      console.log(transaction)
+      const response = await Axios.delete(
         URL.DeleteTransactions(transaction._id),
         { headers: { authorization: token }}
       );
-      return (await response).data.message;
+      
+      return response.data.message;
+
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }    

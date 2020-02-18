@@ -6,39 +6,58 @@ import URL  from '../utils/urls'
 @Injectable()
 export class UserService {
 
-  async register(user: UserDTO, token: string): Promise<any> {
+  async get(token: string): Promise<Partial<UserDTO>> {
     try {
-      const response = Axios.post(
+      const response = await Axios.get(URL.getUser(),
+        { headers: { authorization: token } }
+      );
+
+     delete response.data.user.requests;
+     return response.data.user;
+
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async register(user: UserDTO, token: string): Promise<Partial<UserDTO>> {
+    try {
+      const response = await Axios.post(
         URL.InsertUser(),
         user, 
         { headers: { Authorization: token } }
       );
-      return (await response).data.createdUser;
+      delete response.data.createdUser.requests;
+      return response.data.createdUser;
+      
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async login(user: Partial<UserDTO>): Promise<any> {
+  async login(user: Partial<UserDTO>): Promise<string> {
     try {
-      const response = Axios.post(
+      const response = await Axios.post(
         URL.LoginUser(),
         user
       );
-      return (await response).data;
+      return response.data;
+      
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async update(user: Partial<UserDTO>, token: string): Promise<any> {
+  async update(user: Partial<UserDTO>, token: string): Promise<Partial<UserDTO>> {
     try {
-      const response = Axios.patch(
+      const response = await Axios.patch(
         URL.UpdateUser(),
         user,
         { headers: { Authorization: token } }
       );
-      return (await response).data.user;
+      delete response.data.user.requests;
+      return response.data.user;
+
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
