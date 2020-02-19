@@ -39,7 +39,10 @@ export class AccountService {
 
   async updateAccount(account: Partial<AccountDTO>, token: string) {
     try {
-      const response = await Axios.patch(URL.updateAccount(account._id), account, { headers: { Authorization: token } });
+      const _id = account._id;
+      delete account._id
+      
+      const response = await Axios.patch(URL.updateAccount(_id), account, { headers: { Authorization: token } });
       delete response.data.account.requests;
       return response.data.account;
     } catch (error) {

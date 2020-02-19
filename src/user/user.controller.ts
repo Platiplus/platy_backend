@@ -12,29 +12,25 @@ export class UserController {
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   async getUserInfo(@Headers('authorization') token: string): Promise<Partial<UserDTO>>{
-    const userInfo = await this.userService.get(token);
-    return userInfo;
+    return await this.userService.get(token);
   }
 
   @Post()
   @UsePipes(new ValidationPipe())
   async registerUser(@Body() user: UserDTO, @Headers('authorization') token: string): Promise<Partial<UserDTO>>{
-    const createdUser = await this.userService.register(user, token);
-    return createdUser;
+    return await this.userService.register(user, token);
   }
 
   @Post('api/login')
   @UsePipes(new ValidationPipe())
-  loginUser(@Body() user: Partial<UserDTO>): Promise<string>{
-    const token = this.userService.login(user);
-    return token;
+  async loginUser(@Body() user: Partial<UserDTO>): Promise<string>{
+    return await this.userService.login(user);
   }
 
   @Patch()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   async updateUser(@Body() user: Partial<UserDTO>, @Headers('authorization') token: string): Promise<Partial<UserDTO>>{
-    const updatedUser = await this.userService.update(user, token);
-    return updatedUser;
+    return await this.userService.update(user, token);
   }
 }

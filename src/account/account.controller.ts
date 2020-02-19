@@ -12,37 +12,34 @@ export class AccountController {
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   getAllAccountsInfo(@Headers('authorization') token: string){
-    const accounts = this.accountService.getAllAccounts(token);
-    return accounts;
+    return this.accountService.getAllAccounts(token);
   }
   
   @Post()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   insertAccount(@Body() account: Partial<AccountDTO>, @Headers('authorization') token: string){
-    this.accountService.insert(account, token);
+    return this.accountService.insert(account, token);
   }
 
   @Get('/:_id')
   @UseGuards(new AuthGuard())
   getAccountInfo(@Param() accountID: Partial<AccountDTO>, @Headers('authorization') token: string){
-    console.log(accountID._id)
-    const account = this.accountService.getAccount(accountID._id, token);    
-    return account;
+    return this.accountService.getAccount(accountID._id, token);    
   }
 
   @Patch()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   updateAccountInfo(@Body() account: Partial<AccountDTO>, @Headers('authorization') token: string){
-    this.accountService.updateAccount(account, token);
+    return this.accountService.updateAccount(account, token);
   }
 
   @Delete()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
   deleteAccount(@Body() account: Partial<AccountDTO>, @Headers('authorization') token: string){
-    this.accountService.deleteAccount(account._id, token);
+    return this.accountService.deleteAccount(account._id, token);
   }
 
 }

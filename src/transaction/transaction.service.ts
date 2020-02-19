@@ -10,15 +10,16 @@ export class TransactionsService {
     delete transaction.owner;
 
     try {
-      const response = Axios.post(
+      const response = await Axios.post(
         URL.InsertTransaction(),
         { ...transaction }, 
         { headers: { authorization: token } }
       );
-      return (await response).data.createdTransaction;
+      delete response.data.createdTransaction.requests;
+
+      return response.data.createdTransaction;
 
     } catch (error) {
-      console.log(error)
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR); 
     } 
   }
@@ -70,7 +71,8 @@ export class TransactionsService {
         { ...transaction }, 
         { headers: { authorization: token }}
       );
-
+      delete response.data.transaction.requests;
+      
       return response.data.transaction;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,7 +81,6 @@ export class TransactionsService {
 
   async delete(transaction: Partial<TransactionDTO>, token: string){
     try {
-      console.log(transaction)
       const response = await Axios.delete(
         URL.DeleteTransactions(transaction._id),
         { headers: { authorization: token }}

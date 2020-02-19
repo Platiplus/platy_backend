@@ -16,15 +16,15 @@ export class TransactionController {
     @Headers('authorization') token: string,
     @Query() params: []): Promise<TransactionDTO[]>
     {
-      const transactions = await this.transactionsService.get(params, token);
-      return transactions;
+      return await this.transactionsService.get(params, token);
     }
 
   @Post()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
-  addTransaction(@Body() transaction: TransactionDTO, @Headers('authorization') token: string): void {
+  async addTransaction(@Body() transaction: TransactionDTO, @Headers('authorization') token: string) {
     if(transaction.quotas != 0 && transaction.quotas != 'unique'){
+      let createdTransactions = []
       const uniqueIdentifier = uuid()
       
       for(let i = 0; i < transaction.quotas; i++){
@@ -40,50 +40,57 @@ export class TransactionController {
           uniqueIdentifier,
           owner
         )
-        this.transactionsService.insert(quota, token)
+        createdTransactions.push(await this.transactionsService.insert(quota, token))
       }
+      return createdTransactions
+
     } else {
-      this.transactionsService.insert(transaction, token)
+      return this.transactionsService.insert(transaction, token)
     }
   }
 
   @Patch()
   @UseGuards(new AuthGuard())
   @UsePipes(new ValidationPipe())
-  updateTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('authorization') token: string): void {
+  async updateTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('authorization') token: string) {
     if(transaction.quotas != undefined && transaction.quotas != 'unique') {
-      this.transactionsService.getCorrelatedTransactions(transaction.quotas, token)
-      .then((transactions) => {
-        const firstIdx = transactions.indexOf(transactions.find((x) => x._id == transaction._id));
-        const referenceDate = transaction.date;
+      let updatedTransactions = [];
+      const transactions = await this.transactionsService.getCorrelatedTransactions(transaction.quotas, token)
+      const firstIdx = transactions.indexOf(transactions.find((x) => x._id == transaction._id));
+      const referenceDate = transaction.date;
         
-        for (let i = firstIdx; i < transactions.length; i++){
-          transaction._id = transactions[i]._id;
-          if (transaction.date !== undefined) {
-            transaction.date = moment(referenceDate, 'DD/MM/YYYY').add(i - firstIdx, 'month').format('DD-MM-YYYY')
-          }
-          this.transactionsService.update(transaction, token)
+      for (let i = firstIdx; i < transactions.length; i++){
+        transaction._id = transactions[i]._id;
+        if (transaction.date !== undefined) {
+          transaction.date = moment(referenceDate, 'DD/MM/YYYY').add(i - firstIdx, 'month').format('DD-MM-YYYY')
         }
-      });
+        updatedTransactions.push(await this.transactionsService.update(transaction, token));
+      }
+
+      return updatedTransactions;
+      
     } else {
-      this.transactionsService.update(transaction, token)
+      return this.transactionsService.update(transaction, token)
     }
   }
 
   @Delete()
   @UsePipes(new ValidationPipe())
   @UseGuards(new AuthGuard())
-  deleteTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('authorization') token: string): void {
+  async deleteTransaction(@Body() transaction: Partial<TransactionDTO>, @Headers('authorization') token: string) {
     if(transaction.quotas != undefined && transaction.quotas != 'unique') {
-      this.transactionsService.getCorrelatedTransactions(transaction.quotas, token)
-      .then((transactions) => {
-        const firstIdx = transactions.indexOf(transactions.find((x) => x._id == transaction._id));
-        for (let i = firstIdx; i < transactions.length; i++){
-          this.transactionsService.delete(transactions[i], token)
-        }
-      });
+      let deletedTransactions = [];
+      const transactions = await this.transactionsService.getCorrelatedTransactions(transaction.quotas, token)
+      const firstIdx = transactions.indexOf(transactions.find((x) => x._id == transaction._id));
+      for (let i = firstIdx; i < transactions.length; i++){
+        deletedTransactions.push(
+          `${await this.transactionsService.delete(transactions[i], token)} - _id: ${transactions[i]._id}`
+        );
+      }
+      return deletedTransactions;
+
     } else {
-      this.transactionsService.delete(transaction, token)
+      return this.transactionsService.delete(transaction, token)
     }
   }
 }
