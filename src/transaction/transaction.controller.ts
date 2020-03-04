@@ -28,7 +28,7 @@ export class TransactionController {
       const uniqueIdentifier = uuid()
       
       for(let i = 0; i < transaction.quotas; i++){
-        const { type, date, description, target, value, category, status, owner } = transaction
+        const { type, date, description, target, value, category, status, owner, account } = transaction
         const quota = new TransactionDTO(
           type,
           moment(date, 'DD/MM/YYYY').add(i, 'month').format('DD-MM-YYYY'),
@@ -38,7 +38,8 @@ export class TransactionController {
           category,
           status,
           uniqueIdentifier,
-          owner
+          owner,
+          account
         )
         createdTransactions.push(await this.transactionsService.insert(quota, token))
       }

@@ -26,10 +26,12 @@ export class TransactionDTO {
     public _id?: string;
     
     public owner?: string;
+
+    public account?: string;
     
     public quotas: any;
 
-    constructor(type, date, description, target, value, category, status, quotas, owner, _id = 'null')
+    constructor(type, date, description, target, value, category, status, quotas, owner, _id = 'null', account = 'null')
     {
       this.type = type;
       this.date = date;
@@ -41,5 +43,6 @@ export class TransactionDTO {
       this.quotas = quotas;
       this.owner = owner;
       this._id = _id;
+      this.account = account;
     }
 }
