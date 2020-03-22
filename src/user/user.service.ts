@@ -20,12 +20,11 @@ export class UserService {
     }
   }
 
-  async register(user: UserDTO, token: string): Promise<Partial<UserDTO>> {
+  async register(user: UserDTO): Promise<Partial<UserDTO>> {
     try {
       const response = await Axios.post(
         URL.InsertUser(),
-        user, 
-        { headers: { Authorization: token } }
+        user
       );
       delete response.data.createdUser.requests;
       return response.data.createdUser;

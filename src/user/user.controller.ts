@@ -17,8 +17,8 @@ export class UserController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  async registerUser(@Body() user: UserDTO, @Headers('authorization') token: string): Promise<Partial<UserDTO>>{
-    return await this.userService.register(user, token);
+  async registerUser(@Body() user: UserDTO ): Promise<Partial<UserDTO>>{
+    return await this.userService.register(user);
   }
 
   @Post('api/login')
